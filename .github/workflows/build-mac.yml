@@ -42,25 +42,33 @@ jobs:
           lipo -info "$OUT/Loopsmith.component/Contents/MacOS/Loopsmith"
           (cd dist && ditto -c -k --keepParent "Loopsmith Plugin" ../Loopsmith-Plugin-Mac.zip)
 
+      # Apple's own Audio Unit test (the same check Logic runs). The result is
+      # attached to the release as auval-report.txt.
       - name: Check that Logic/GarageBand can load the AU (auval)
-        continue-on-error: true
         run: |
           mkdir -p ~/Library/Audio/Plug-Ins/Components
           cp -R "dist/Loopsmith Plugin/Loopsmith.component" ~/Library/Audio/Plug-Ins/Components/
           killall -9 AudioComponentRegistrar 2>/dev/null || true
           sleep 3
-          auval -v aufx Lsm1 Lpsm
+          if auval -v aufx Lsm1 Lpsm > auval-report.txt 2>&1; then
+            echo "AUVAL_RESULT=passed" >> "$GITHUB_ENV"
+          else
+            echo "AUVAL_RESULT=FAILED" >> "$GITHUB_ENV"
+          fi
+          tail -n 40 auval-report.txt
 
       - uses: actions/upload-artifact@v4
         with:
           name: Loopsmith-Plugin-Mac
-          path: Loopsmith-Plugin-Mac.zip
+          path: |
+            Loopsmith-Plugin-Mac.zip
+            auval-report.txt
 
       - name: Publish it under Releases
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "build-${{ github.run_number }}" Loopsmith-Plugin-Mac.zip \
+          gh release create "build-${{ github.run_number }}" Loopsmith-Plugin-Mac.zip auval-report.txt \
             --title "Loopsmith plugin (build ${{ github.run_number }})" \
-            --notes "Download **Loopsmith-Plugin-Mac.zip** below, unzip it, and open Read me.html." \
+            --notes "Download **Loopsmith-Plugin-Mac.zip** below, unzip it, and open Read me.html. (Audio Unit check: ${AUVAL_RESULT:-not run})" \
             --latest
