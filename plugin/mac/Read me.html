@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Loopsmith plugin</title>
+<style>
+  :root {
+    --body: #2B3038; --panel: #353B45; --well: #1D2127; --line: #4A525E;
+    --text: #ECE9E3; --muted: #A9B0BA;
+    --beat: #FF8A3D; --stem: #3DD6C6; --sample: #F5C542; --midi: #9B8CFF;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--body); color: var(--text); font: 16px/1.6 "Segoe UI", system-ui, sans-serif; }
+  main { max-width: 760px; margin: 0 auto; padding: 48px 20px 80px; }
+  h1 { font-size: 40px; line-height: 1.05; margin: 0 0 8px; letter-spacing: -0.02em; font-weight: 800; }
+  h2 { font-size: 22px; margin: 44px 0 10px; font-weight: 800; }
+  h3 { font-size: 17px; margin: 24px 0 6px; }
+  p, li { color: var(--text); }
+  .lede { color: var(--muted); font-size: 18px; margin: 0 0 28px; }
+  .pads { display: inline-grid; grid-template-columns: repeat(2, 16px); gap: 4px; vertical-align: -6px; margin-right: 12px; }
+  .pads i { width: 16px; height: 16px; border-radius: 4px; }
+  .pads i:nth-child(1) { background: var(--beat); } .pads i:nth-child(2) { background: var(--stem); }
+  .pads i:nth-child(3) { background: var(--sample); } .pads i:nth-child(4) { background: var(--midi); }
+  ol.steps { counter-reset: s; list-style: none; padding: 0; }
+  ol.steps > li { counter-increment: s; position: relative; padding: 14px 16px 14px 60px; background: var(--panel); border-radius: 8px; margin-bottom: 8px; }
+  ol.steps > li::before { content: counter(s); position: absolute; left: 14px; top: 13px; width: 32px; height: 32px; border-radius: 8px; background: var(--beat); color: #241404; font-weight: 800; display: grid; place-items: center; }
+  code, kbd { background: var(--well); border: 1px solid var(--line); border-radius: 4px; padding: 1px 6px; font-family: Consolas, monospace; font-size: 14px; }
+  table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 15px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; }
+  .note { border-left: 4px solid var(--sample); background: var(--panel); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 16px 0; }
+  .k { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; }
+  a { color: var(--stem); }
+  .cmd { display: block; white-space: pre-wrap; word-break: break-all; padding: 10px 12px; margin: 8px 0; font-size: 14px; user-select: all; }
+  .cost { display: grid; grid-template-columns: 1fr auto; gap: 4px 16px; background: var(--panel); border-radius: 8px; padding: 14px 16px; }
+  .cost b { text-align: right; }
+  ul { padding-left: 22px; }
+</style>
+</head>
+<body>
+<main>
+  <h1><span class="pads" aria-hidden="true"><i></i><i></i><i></i><i></i></span>Loopsmith plugin</h1>
+  <p class="lede">Your Loopsmith studio inside Logic, FL Studio, Ableton or any DAW. Make beats, drag sounds straight onto your tracks, and send audio from a track up to the studio, without leaving your session.</p>
+
+  <h2>Install</h2>
+  <ol class="steps">
+    <li>Unzip <b>Loopsmith-Plugin-Mac.zip</b>.</li>
+    <li>Right-click (or Control-click) <b>Install Loopsmith Plugin.command</b>, choose <b>Open</b>, then <b>Open</b> again. macOS asks because the file isn't from the App Store.</li>
+    <li>When it says <b>Installed</b>, quit your DAW completely and open it again.</li>
+  </ol>
+
+  <h2>Find it in your DAW</h2>
+  <p>Loopsmith is an audio effect. Put it on any audio track (or your master channel to capture the whole beat). Audio passes through it untouched.</p>
+  <table>
+    <tr><th>DAW</th><th>Where</th></tr>
+    <tr><td>Logic Pro</td><td>On an audio track, click an empty <b>Audio FX</b> slot &gt; <b>Audio Units</b> &gt; <b>Loopsmith</b> &gt; <b>Loopsmith</b>. If Logic says it couldn't validate it, open <b>Logic Pro &gt; Settings &gt; Plug-in Manager</b>, select Loopsmith and click <b>Reset &amp; Rescan Selection</b>.</td></tr>
+    <tr><td>FL Studio</td><td><b>Options &gt; Manage plugins</b>, then scan for plugins. In the Mixer, click an empty insert slot on a track and choose <b>Loopsmith</b>.</td></tr>
+    <tr><td>Ableton Live</td><td><b>Settings &gt; Plug-ins</b>: turn on <b>Use Audio Units v2</b> or <b>Use VST3 Plug-in System Folders</b> and click <b>Rescan</b>. Then find Loopsmith under <b>Plug-ins</b> in the browser and drag it onto an audio track.</td></tr>
+  </table>
+  <p class="hint" style="color:var(--muted)">Menu names can differ a little between DAW versions.</p>
+
+  <h2>Connect it to your studio</h2>
+  <ol class="steps">
+    <li>Start your RunPod machine and run <code>start.sh</code> as usual.</li>
+    <li>Open the Loopsmith plugin window, paste the studio link into the box at the top, and click <b>Open studio</b>.</li>
+    <li>Log in with your studio password. Each new pod link asks once.</li>
+  </ol>
+
+  <h2>Drag sounds onto your tracks</h2>
+  <ol class="steps">
+    <li>Click the <b>arrow button</b> next to any sound (beats, stems, loops, one-shots, MIDI).</li>
+    <li>The bar at the bottom of the plugin shows the file when it's ready.</li>
+    <li>Drag that bar onto a track, the playlist or the arrangement. The file is also saved in <b>Music &gt; Loopsmith Library</b>, the same folder Loopsmith Sync uses.</li>
+  </ol>
+  <p>Download buttons inside the plugin save to your <b>Downloads</b> folder and show the file in Finder.</p>
+
+  <h2>Send a track to the studio</h2>
+  <ol class="steps">
+    <li>Put Loopsmith on the track you want to send (or the master for the whole mix).</li>
+    <li>Click <b>Capture this track</b>, then press play in your DAW.</li>
+    <li>Press stop when you've got what you want (up to 6 minutes). It sends automatically, and the sound opens in the studio, ready for stems, MIDI, chopping or remixing.</li>
+  </ol>
+  <p>Click the button again while it's recording to stop and send early, or <b>Cancel</b> to throw the capture away.</p>
+
+  <h2>If something goes wrong</h2>
+  <table>
+    <tr><th>Problem</th><th>Fix</th></tr>
+    <tr><td>The plugin window is blank or says it can't connect</td><td>Check your RunPod machine is running and <code>start.sh</code> printed the link. New pod? Paste the new link and click Open studio.</td></tr>
+    <tr><td>Your DAW doesn't list Loopsmith</td><td>Quit and reopen the DAW, and rescan plugins (see the table above). Run the installer again if needed; it also clears macOS's download flag.</td></tr>
+    <tr><td>The drag bar says it couldn't get the sound</td><td>The studio probably logged you out or the pod changed. Reload with Open studio, log in, and click the arrow button again.</td></tr>
+  </table>
+
+  <h2>Remove it</h2>
+  <p>Delete <code>Loopsmith.component</code> from <code>~/Library/Audio/Plug-Ins/Components</code> and <code>Loopsmith.vst3</code> from <code>~/Library/Audio/Plug-Ins/VST3</code>.</p>
+
+  <h3>Built with</h3>
+  <p>The <a href="https://juce.com">JUCE</a> framework (AGPLv3 / JUCE licence).</p>
+</main>
+</body>
+</html>

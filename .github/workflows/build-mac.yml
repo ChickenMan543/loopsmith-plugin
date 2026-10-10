@@ -1,0 +1,66 @@
+name: Build Loopsmith plugin for Mac
+
+# Runs on GitHub's Mac computers whenever the code changes (or when you press
+# "Run workflow" on the Actions tab). The finished plugin appears under Releases.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-mac:
+    runs-on: macos-14
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up the build (Intel + Apple Silicon, macOS 10.15 and newer)
+        run: >
+          cmake -S plugin -B build -G Xcode
+          -DCMAKE_OSX_ARCHITECTURES="x86_64;arm64"
+          -DCMAKE_OSX_DEPLOYMENT_TARGET=10.15
+
+      - name: Build the AU and VST3 plugins
+        run: cmake --build build --config Release --target Loopsmith_AU Loopsmith_VST3 -- -quiet
+
+      - name: Package
+        run: |
+          set -e
+          A="build/Loopsmith_artefacts/Release"
+          OUT="dist/Loopsmith Plugin"
+          mkdir -p "$OUT"
+          cp -R "$A/AU/Loopsmith.component" "$OUT/"
+          cp -R "$A/VST3/Loopsmith.vst3" "$OUT/"
+          # Ad-hoc signature: enough for your own Mac (no Apple developer account needed).
+          codesign --force --deep --sign - "$OUT/Loopsmith.component"
+          codesign --force --deep --sign - "$OUT/Loopsmith.vst3"
+          cp "plugin/mac/Install Loopsmith Plugin.command" "plugin/mac/Read me.html" "$OUT/"
+          chmod +x "$OUT/Install Loopsmith Plugin.command"
+          lipo -info "$OUT/Loopsmith.component/Contents/MacOS/Loopsmith"
+          (cd dist && ditto -c -k --keepParent "Loopsmith Plugin" ../Loopsmith-Plugin-Mac.zip)
+
+      - name: Check that Logic/GarageBand can load the AU (auval)
+        continue-on-error: true
+        run: |
+          mkdir -p ~/Library/Audio/Plug-Ins/Components
+          cp -R "dist/Loopsmith Plugin/Loopsmith.component" ~/Library/Audio/Plug-Ins/Components/
+          killall -9 AudioComponentRegistrar 2>/dev/null || true
+          sleep 3
+          auval -v aufx Lsm1 Lpsm
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Loopsmith-Plugin-Mac
+          path: Loopsmith-Plugin-Mac.zip
+
+      - name: Publish it under Releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "build-${{ github.run_number }}" Loopsmith-Plugin-Mac.zip \
+            --title "Loopsmith plugin (build ${{ github.run_number }})" \
+            --notes "Download **Loopsmith-Plugin-Mac.zip** below, unzip it, and open Read me.html." \
+            --latest
